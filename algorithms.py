@@ -3,6 +3,7 @@ Code written by: Albert S. Berahas & Jiahao Shi
 """
 
 import numpy as np
+import helper_func
 
 
 def GradientDescent(x, f, g, problem, method, options):
@@ -23,7 +24,14 @@ def GradientDescent(x, f, g, problem, method, options):
 
 
 def GradientDescentW(x, f, g, problem, method, options):
-    raise NotImplementedError("GradientDescentW not implemented.")
+    d = -g
+
+    # week Wolfe line search helper function
+    alpha, x_new, f_new, g_new = helper_func.weak_wolfe_line_search(
+        x, f, g, d, problem, options
+    )
+
+    return x_new, f_new, g_new, d, alpha
 
 
 def Newton(x, f, g, problem, method, options):

@@ -13,7 +13,7 @@ def GradientDescent(x, f, g, problem, method, options):
     tau = getattr(options, "tau", 0.5)
     c1 = getattr(options, "c1", 1e-4)
 
-    while problem.compute_f(x + alpha * d) > f + c1 * alpha * np.dot(g, d):
+    while float(problem.compute_f(x + alpha * d)) > float(f + c1 * alpha * np.dot(g, d)):
         alpha = tau * alpha
 
     x_new = x + alpha * d
@@ -43,7 +43,7 @@ def Newton(x, f, g, problem, method, options):
     tau = getattr(options, "tau", 0.5)
     c1 = getattr(options, "c1", 1e-4)
 
-    while problem.compute_f(x + alpha * d) > f + c1 * alpha * np.dot(g, d):
+    while float(problem.compute_f(x + alpha * d)) > float(f + c1 * alpha * np.dot(g, d)):
         alpha = tau * alpha
 
     x_new = x + alpha * d

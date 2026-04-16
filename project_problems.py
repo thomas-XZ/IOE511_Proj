@@ -30,9 +30,9 @@ def quad_10_10_func(x):
 
     mat = scipy.io.loadmat('quad_10_10_Q.mat')
     Q = mat['Q']
-    
+
     # compute function value
-    return (1/2*x.T@Q@x + q.T@x)[0]
+    return 1/2*x.T@Q@x + q.T@x[0]
 
 def quad_10_10_grad(x):
     # set raondom seed

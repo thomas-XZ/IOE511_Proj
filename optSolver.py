@@ -6,6 +6,8 @@ Implementations by: Kayla Huang, Wuhao Cao, & Thomas Xu ZHANG
 import numpy as np
 import algorithms
 import project_problems
+import time
+from types import SimpleNamespace
 
 
 def optSolver_Fire_Horse(problem, method, options):
@@ -36,6 +38,11 @@ def optSolver_Fire_Horse(problem, method, options):
     term_tol = getattr(options, "term_tol", 1e-6)
     max_iter = getattr(options, "max_iterations", 1000)
 
+    # Initialize metrics
+    function_evaluations = 1  # initial f
+    gradient_evaluations = 1  # initial g
+    start_time = time.time()
+
     # Main Optimization Loop
     while norm_g > term_tol and k < max_iter:
 
@@ -44,11 +51,15 @@ def optSolver_Fire_Horse(problem, method, options):
                 x_new, f_new, g_new, d, alpha = algorithms.GradientDescent(
                     x, f, g, problem, method, options
                 )
+                function_evaluations += 1  # f_new
+                gradient_evaluations += 1  # g_new
 
             case "GradientDescentW":
                 x_new, f_new, g_new, d, alpha = algorithms.GradientDescentW(
                     x, f, g, problem, method, options
                 )
+                function_evaluations += 1
+                gradient_evaluations += 1
 
             case "Newton":
                 x_new, f_new, g_new, d, alpha = algorithms.Newton(
@@ -93,6 +104,10 @@ def optSolver_Fire_Horse(problem, method, options):
             case _:
                 raise ValueError(f"Method '{method.name}' is not recognized.")
 
+        # Increment counters for this iteration
+        function_evaluations += 1
+        gradient_evaluations += 1
+
         # Update tracking variables
         x_old = x
         f_old = f
@@ -105,4 +120,15 @@ def optSolver_Fire_Horse(problem, method, options):
 
         k += 1
 
-    return x, f
+    cpu_seconds = time.time() - start_time
+
+    # Return results as a namespace
+    result = SimpleNamespace(
+        final_x=x,
+        final_f=f,
+        iterations=k,
+        function_evaluations=function_evaluations,  # Note: this is approximate, as line search calls are not counted
+        gradient_evaluations=gradient_evaluations,  # Same
+        cpu_seconds=cpu_seconds
+    )
+    return result

@@ -5,7 +5,7 @@ Implementations by: Kayla Huang, Wuhao Cao, & Thomas Xu ZHANG
 
 import numpy as np
 import algorithms
-import functions
+import project_problems
 
 
 def optSolver_Fire_Horse(problem, method, options):

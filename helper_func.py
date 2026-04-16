@@ -60,3 +60,57 @@ def weak_wolfe_line_search(x, f, g, d, problem, options):
         g_new = problem.compute_g(x_new)
 
     return alpha, x_new, f_new, g_new
+
+
+def cg_steihaug(g, H, Delta, options):
+    """
+    Steihaug-Toint Conjugate Gradient method for solving the Trust Region subproblem.
+    """
+    n = len(g)
+    z = np.zeros(n)
+    r = g.copy()
+    d = -r
+
+    term_tol_CG = getattr(options, "term_tol_CG", 1e-5 * np.linalg.norm(g))
+    max_iter_CG = getattr(options, "max_iterations_CG", n * 2)
+
+    if np.linalg.norm(r) < term_tol_CG:
+        return z
+
+    for _ in range(max_iter_CG):
+        Hd = H @ d
+        kappa = np.dot(d, Hd)  # Curvature
+
+        # negative curvature
+        if kappa <= 0:
+            a = np.dot(d, d)
+            b = 2 * np.dot(z, d)
+            c = np.dot(z, z) - Delta**2
+            # Find root tau >= 0
+            tau = (-b + np.sqrt(max(0, b**2 - 4 * a * c))) / (2 * a)
+            return z + tau * d
+
+        alpha = np.dot(r, r) / kappa
+        z_next = z + alpha * d
+
+        # exceed trust region
+        if np.linalg.norm(z_next) >= Delta:
+            a = np.dot(d, d)
+            b = 2 * np.dot(z, d)
+            c = np.dot(z, z) - Delta**2
+            # Find root tau >= 0
+            tau = (-b + np.sqrt(max(0, b**2 - 4 * a * c))) / (2 * a)
+            return z + tau * d
+
+        r_next = r + alpha * Hd
+
+        # convergence test
+        if np.linalg.norm(r_next) < term_tol_CG:
+            return z_next
+
+        beta = np.dot(r_next, r_next) / np.dot(r, r)
+        d = -r_next + beta * d
+        z = z_next
+        r = r_next
+
+    return z

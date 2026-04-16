@@ -18,8 +18,11 @@ def optSolver_Fire_Horse(problem, method, options):
     n = len(x)
     k = 0
 
-    # Variables specific to quasi-Newton methods
-    H = np.eye(n) if method.name in ["BPGS", "BFGSW", "DFP", "DFPW"] else None
+    H = (
+        np.eye(n)
+        if method.name in ["BFGS", "BFGSW", "DFP", "DFPW", "TRSR1CG"]
+        else None
+    )
     x_old, g_old = None, None
 
     # trust region initialization
@@ -29,7 +32,7 @@ def optSolver_Fire_Horse(problem, method, options):
         else None
     )
 
-    # Fetch tolerances [cite: 44, 45]
+    # Fetch tolerances
     term_tol = getattr(options, "term_tol", 1e-6)
     max_iter = getattr(options, "max_iterations", 1000)
 
@@ -58,17 +61,17 @@ def optSolver_Fire_Horse(problem, method, options):
                 )
 
             case "TRNewtonCG":
-                x_new, f_new, g_new, Delta = algorithms.TRNewtonCG(
+                x_new, f_new, g_new, d, Delta = algorithms.TRNewtonCG(
                     x, f, g, Delta, problem, method, options
                 )
 
             case "TRSR1CG":
-                x_new, f_new, g_new, Delta = algorithms.TRSR1CG(
-                    x, f, g, Delta, problem, method, options
+                x_new, f_new, g_new, H, d, Delta = algorithms.TRSR1CG(
+                    x, x_old, f, g, g_old, H, Delta, k, problem, method, options
                 )
 
-            case "BPGS":
-                x_new, f_new, g_new, H, d, alpha = algorithms.BPGS(
+            case "BFGS":
+                x_new, f_new, g_new, H, d, alpha = algorithms.BFGS(
                     x, x_old, f, g, g_old, H, k, problem, method, options
                 )
 
